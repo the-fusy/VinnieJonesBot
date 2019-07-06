@@ -24,6 +24,12 @@ class User(models.Model):
     last_query = models.CharField(max_length=256, null=True, blank=True)
     last_group = models.ForeignKey(SplitwiseGroup, on_delete=models.SET_NULL, null=True, blank=True)
 
+    class UserManager(models.Manager):
+        def get_queryset(self):
+            return super().get_queryset().select_related('splitwise', 'telegram')
+
+    objects = UserManager()
+
 
 class ShoppingList(models.Model):
     payer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='+')
