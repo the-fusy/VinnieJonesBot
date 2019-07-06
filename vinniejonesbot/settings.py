@@ -33,6 +33,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'splitwise',
     'telegram',
+    'fns',
     'phonenumber_field',
     'django.contrib.admin',
     'django.contrib.auth',

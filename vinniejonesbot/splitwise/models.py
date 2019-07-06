@@ -4,7 +4,7 @@ from telegram.models import TelegramUser, Message
 from fns.models import FnsUser
 
 
-class SplitwiseGroup(models.Models):
+class SplitwiseGroup(models.Model):
     id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=128)
     users = models.ManyToManyField('User', related_name='groups')
@@ -26,9 +26,10 @@ class User(models.Model):
 
 
 class ShoppingList(models.Model):
-    payer = models.ForeignKey(User, on_delete=models.CASCADE)
+    payer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='+')
     payment_date = models.DateField()
     users = models.ManyToManyField(User, through='ShoppingListUser')
+    state = models.CharField(max_length=128, default='active')
 
 
 class ShoppingListUser(models.Model):
