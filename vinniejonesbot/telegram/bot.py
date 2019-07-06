@@ -31,13 +31,14 @@ class Bot():
         response = requests.post(
             url=f'https://api.telegram.org/bot{self.token}/{method}',
             json=data,
-            timeout=2,
+            timeout=2 if 'timeout' not in data else None,
         ).json()
 
         if not response['ok']:
             logger.error(
                 f'Error ({response.get("error_code")}, {response.get("description")}) while making {method}: {data}'
             )
+            return
 
         response_type = self.available_methods[method]
 

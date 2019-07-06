@@ -129,3 +129,5 @@ STATIC_URL = '/static/'
 
 
 FNS_HOST = 'https://proverkacheka.nalog.ru:9999/v1'
+
+BOT_TOKEN = os.getenv('BOT_TOKEN')
