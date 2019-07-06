@@ -5,7 +5,7 @@ import requests
 
 from functools import partial
 
-# from telegram.types import User, Message, Update
+from telegram.types import User, Message, Update
 
 
 logger = logging.getLogger(__name__)
@@ -13,9 +13,9 @@ logger = logging.getLogger(__name__)
 
 class Bot():
     available_methods = {
-        'getMe': User,
-        'sendMessage': Message,
-        'getUpdates': Update,
+        'getme': User,
+        'sendmessage': Message,
+        'getupdates': Update,
     }
 
     def __init__(self, token):
@@ -47,7 +47,6 @@ class Bot():
 
     def __getattr__(self, name):
         if '_' in name:
-            name = name.split('_')
-            name = name[0].lower() + name[1].capitalize()
+            name = name.replace('_', '').lower()
         if name in self.available_methods.keys():
             return partial(self.make_request, method=name)
