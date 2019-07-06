@@ -1,6 +1,6 @@
 from django.db import models
 
-from telegram.models import TelegramUser, Message
+from telegram.models import TelegramUser
 from fns.models import FnsUser
 
 
