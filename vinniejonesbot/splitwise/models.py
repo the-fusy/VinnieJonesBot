@@ -35,7 +35,7 @@ class ShoppingList(models.Model):
 class ShoppingListUser(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     shopping_list = models.ForeignKey(ShoppingList, on_delete=models.CASCADE)
-    message = models.ForeignKey(Message, on_delete=models.CASCADE)
+    message_id = models.IntegerField()
     approve = models.BooleanField(default=False)
 
 

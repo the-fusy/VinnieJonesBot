@@ -32,6 +32,7 @@ class FnsApi():
         response = requests.get(
             url=f'{settings.FNS_HOST}/mobile/users/login',
             auth=(self.phone, self.password),
+            timeout=2,
         )
 
         return response.status_code == 200
@@ -47,6 +48,7 @@ class FnsApi():
         response = requests.post(
             url=f'{settings.FNS_HOST}/mobile/users/signup',
             json={'phone': self.phone, 'name': name, 'email': f'{name}@mail.ru'},
+            timeout=2,
         )
 
         if response.status_code == 204:
@@ -56,6 +58,7 @@ class FnsApi():
         response = requests.post(
             url=f'{settings.FNS_HOST}/mobile/users/restore',
             json={'phone': self.phone},
+            timeout=2,
         )
 
         if response.status_code == 204:
