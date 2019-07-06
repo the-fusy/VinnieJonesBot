@@ -1,3 +1,6 @@
 django==2.2.3
 django-phonenumber-field==3.0.1
 splitwise==1.1.0
+psycopg2==2.8.3
+phonenumbers==8.10.14
+
