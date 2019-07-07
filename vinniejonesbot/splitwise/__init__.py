@@ -4,6 +4,8 @@ from telegram.models import TelegramUser
 from telegram.types import Update
 from telegram import bot
 
+import logging
+
 
 logger = logging.getLogger(__name__)
 
