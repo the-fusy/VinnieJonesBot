@@ -35,7 +35,7 @@ class ShoppingList(models.Model):
     payer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='+')
     payment_date = models.DateField()
     users = models.ManyToManyField(User, through='ShoppingListUser')
-    state = models.CharField(max_length=128, default='active')
+    state = models.CharField(max_length=128, default='main')
 
 
 class ShoppingListUser(models.Model):

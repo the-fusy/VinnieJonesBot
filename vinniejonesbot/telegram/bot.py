@@ -5,7 +5,7 @@ import requests
 
 from functools import partial
 
-from telegram.types import User, Message, Update
+from telegram.types import User, Message, Update, File
 
 
 logger = logging.getLogger(__name__)
@@ -16,6 +16,7 @@ class Bot():
         'getme': User,
         'sendmessage': Message,
         'getupdates': Update,
+        'getfile': File,
     }
 
     def __init__(self, token):
