@@ -1,5 +1,10 @@
 from telegram.types import Update
 
+import logging
+
+
+logger = logging.getLogger(__name__)
+
 
 def start(update: Update):
-    print(update.message.text)
+    logger.info(update.message.text)

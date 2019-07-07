@@ -131,3 +131,34 @@ STATIC_URL = '/static/'
 FNS_HOST = 'https://proverkacheka.nalog.ru:9999/v1'
 
 BOT_TOKEN = os.getenv('BOT_TOKEN')
+
+LOGGING = {
+    'version': 1,
+    'formatters': {
+        'verbose': {
+            'format': '({levelname}) {message} | {pathname}::{funcName} at line {lineno} | {asctime}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        'splitwise': {
+            'level': 'DEBUG',
+            'handlers': ['console'],
+        },
+        'telegram': {
+            'level': 'DEBUG',
+            'handlers': ['console'],
+        },
+        'fns': {
+            'level': 'DEBUG',
+            'handlers': ['console'],
+        },
+    }
+}
