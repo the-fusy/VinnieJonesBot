@@ -1,6 +1,15 @@
+from typing import Optional
+
+import io
+import requests
+import logging
+
+from PIL import Image
+
 from django.conf import settings
 
-from typing import Optional
+
+logger = logging.getLogger(__name__)
 
 
 class BaseType():
@@ -25,8 +34,8 @@ class File(BaseType):
         self.file_id: str = data['file_id']
         self.file_size: int = data.get('file_size')
         self.file_path: str = data.get('file_path')
-        url = f'https://api.telegram.org/bot{settings.BOT_TOKEN}/{self.file_path}'
-        self.file: bytes = requests.get(url).content
+        url = f'https://api.telegram.org/file/bot{settings.BOT_TOKEN}/{self.file_path}'
+        self.file: Image = Image.open(requests.get(url, stream=True).raw)
 
 
 class Message(BaseType):

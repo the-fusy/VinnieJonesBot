@@ -2,7 +2,6 @@ from typing import Optional, List
 import logging
 
 import time
-import dateutil
 import random
 import string
 
@@ -22,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 class FnsApi():
     def __init__(self, user: FnsUser):
-        self.phone = user.phone
+        self.phone = str(user.phone)
         self.password = user.password
 
     def is_authenticated(self) -> bool:
@@ -72,11 +71,16 @@ class FnsApi():
     def get_receipt(self, qr_text, second_attempt=False) -> Optional[List[Item]]:
         logger.info(f'Trying to get receipt: {qr_text}')
 
-        params = {
-            key: value
-            for key, value in [item.split('=') for item in qr_text.split('&')]
-        }
-        params['s'] = params['s'].replace('.', '')
+        try:
+            params = {
+                key: value
+                for key, value in [item.split('=') for item in qr_text.split('&')]
+            }
+            params['s'] = params['s'].replace('.', '')
+            assert len(set(['fn', 'i', 'fp', 'n', 't', 's']).intersection(set(params.keys()))) == 6
+        except (ValueError, KeyError, AssertionError):
+            logger.info(f'Bad QR')
+            return None
 
         response = requests.get(
             url='{host}/ofds/*/inns/*/fss/{fn}/operations/{n}/tickets/{i}?fiscalSign={fp}&date={t}&sum={s}'.format(

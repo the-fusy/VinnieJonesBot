@@ -2,7 +2,7 @@ import logging
 
 from telegram import bot
 
-from splitwise import start
+from splitwise.behaviour import start
 
 
 logger = logging.getLogger(__name__)

@@ -20,7 +20,7 @@ class User(models.Model):
     splitwise = models.OneToOneField(SplitwiseUser, on_delete=models.SET_NULL, null=True, blank=True)
     telegram = models.OneToOneField(TelegramUser, on_delete=models.SET_NULL, null=True, blank=True)
     fns = models.OneToOneField(FnsUser, on_delete=models.SET_NULL, null=True, blank=True)
-    state = models.CharField(max_length=128, default='start')
+    state = models.CharField(max_length=128, default='main')
     last_query = models.CharField(max_length=256, null=True, blank=True)
     last_group = models.ForeignKey(SplitwiseGroup, on_delete=models.SET_NULL, null=True, blank=True)
 
