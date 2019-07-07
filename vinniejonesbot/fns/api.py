@@ -21,9 +21,9 @@ logger = logging.getLogger(__name__)
 
 
 class FnsApi():
-    def __init__(self, phone, password):
-        self.phone = phone
-        self.password = password
+    def __init__(self, user: FnsUser):
+        self.phone = user.phone
+        self.password = user.password
 
     def is_authenticated(self) -> bool:
         if not self.phone or not self.password:

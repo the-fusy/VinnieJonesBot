@@ -26,7 +26,7 @@ class User(models.Model):
 
     class UserManager(models.Manager):
         def get_queryset(self):
-            return super().get_queryset().select_related('splitwise', 'telegram')
+            return super().get_queryset().select_related('splitwise', 'telegram', 'fns')
 
     objects = UserManager()
 
