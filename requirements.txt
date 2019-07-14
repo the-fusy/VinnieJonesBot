@@ -6,4 +6,4 @@ phonenumbers==8.10.14
 requests==2.22.0
 pyzbar
 Pillow
-
+ipython

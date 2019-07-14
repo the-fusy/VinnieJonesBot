@@ -1,4 +1,4 @@
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
 import logging
 
 import time
@@ -8,12 +8,13 @@ import string
 import json
 import requests
 
+from datetime import datetime
 from decimal import Decimal
 
 from django.conf import settings
 
 from fns.models import FnsUser
-from splitwise.models import Item
+from splitwise.models import ShoppingList, Item
 
 
 logger = logging.getLogger(__name__)
@@ -68,7 +69,7 @@ class FnsApi():
 
         return response.status_code == 204
 
-    def get_receipt(self, qr_text, second_attempt=False) -> Optional[List[Item]]:
+    def _get_receipt(self, qr_text, second_attempt=False) -> Optional[Dict[str, Any]]:
         logger.info(f'Trying to get receipt: {qr_text}')
 
         try:
@@ -111,20 +112,32 @@ class FnsApi():
                 return None
             else:
                 time.sleep(3)
-                return self.get_receipt(qr_text, True)
+                return self._get_receipt(qr_text, True)
 
         try:
-            items = response.json()['document']['receipt']['items']
+            receipt = response.json()['document']['receipt']
         except (json.JSONDecodeError, KeyError):
             logger.exception(f'Error while parsing response with items: {response.content}')
             return None
 
-        return [
-            Item(
+        return receipt
+
+    def get_shopping_list(self, qr_text: str) -> Optional[ShoppingList]:
+        receipt = self._get_receipt(qr_text)
+        if not receipt:
+            return None
+
+        shopping_list = ShoppingList.objects.create(
+            payment_date=datetime.fromisoformat(receipt['dateTime']),
+        )
+
+        for item in receipt['items']:
+            Item.objects.create(
+                shopping_list=shopping_list,
                 name=item['name'],
                 price=item['price'],
                 count=Decimal(item['quantity']),
                 total_price=item['sum'],
             )
-            for item in items
-        ]
+
+        return shopping_list

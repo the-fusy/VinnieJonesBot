@@ -1,6 +1,10 @@
+from enum import Enum
+
 from django.db import models
 
 from telegram.models import TelegramUser
+from telegram.types import Message
+
 from fns.models import FnsUser
 
 
@@ -32,10 +36,23 @@ class User(models.Model):
 
 
 class ShoppingList(models.Model):
-    payer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='+')
+    payer = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='+', null=True, blank=True)
     payment_date = models.DateField()
     users = models.ManyToManyField(User, through='ShoppingListUser')
-    state = models.CharField(max_length=128, default='main')
+
+    def set_payer(self, user: User):
+        self.payer = user
+        self.save()
+
+    def send_list(self, user: User) -> Message:
+        return user.telegram.send_message(text=list(self.item_set.all().values_list('name')))
+
+    def add_user(self, user: User):
+        ShoppingListUser.objects.create(
+            user=user,
+            shopping_list=self,
+            message_id=self.send_list(user).id,
+        )
 
 
 class ShoppingListUser(models.Model):
