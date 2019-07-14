@@ -53,7 +53,23 @@ class Message(BaseType):
                 self.photo: str = ph['file_id']
 
 
+class CallbackQuery(BaseType):
+    def __init__(self, data):
+        self.id: int = data['id']
+        self.user: User = User(data.get('from'))
+        self.message: Optional[Message] = Message(data.get('message'))
+        self.data: str = data['data']
+
+
 class Update(BaseType):
+    types = ['message', 'callback_query']
+
     def __init__(self, data):
         self.id: int = data['update_id']
         self.message: Optional[Message] = Message(data.get('message'))
+        self.callback_query: Optional[CallbackQuery] = CallbackQuery(data.get('callback_query'))
+
+        for t in self.types:
+            if getattr(self, t, None) is not None:
+                self.type = t
+                break

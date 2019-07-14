@@ -1,8 +1,10 @@
 from pyzbar import pyzbar
 
+from django.db.models import F
+
 from fns.api import FnsApi
 from fns.models import FnsUser
-from splitwise.models import User
+from splitwise.models import User, Item, ShoppingListUser
 from telegram.models import TelegramUser, states
 from telegram.types import Update
 from telegram import bot
@@ -14,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 
 def start(update: Update):
-    tg_user = update.message.user  # TODO: get tg_user
+    tg_user = getattr(update, update.type).user  # TODO: get tg_user
     if not User.objects.filter(telegram__user_id=tg_user.id).exists():
         user = User(
             telegram=TelegramUser.objects.create(
@@ -27,7 +29,16 @@ def start(update: Update):
     else:
         user = User.objects.get(telegram__user_id=tg_user.id)
     # TODO: check splitwise token and ask it if invalid
-    globals()[f'process_{user.telegram.state}'](user, update)
+
+    if update.type == 'callback_query':
+        if 'approve' in update.callback_query.data:
+            approve = update.callback_query.data == 'approve'
+            ShoppingListUser.objects.filter(message_id=update.callback_query.message.id).update(approve=approve)
+        else:
+            item_id, value = list(map(int, update.callback_query.data.split('_')))
+            Item.objects.get(id=item_id).change_count(user, value)
+    else:
+        globals()[f'process_{user.telegram.state}'](user, update)
 
 
 def process_main(user, update):

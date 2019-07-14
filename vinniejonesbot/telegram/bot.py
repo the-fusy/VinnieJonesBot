@@ -17,6 +17,7 @@ class Bot():
         'sendmessage': Message,
         'getupdates': Update,
         'getfile': File,
+        'editmessagetext': Message,
     }
 
     def __init__(self, token):

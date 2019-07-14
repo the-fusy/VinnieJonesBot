@@ -1,11 +1,19 @@
+import logging
+
 from enum import Enum
 
 from django.db import models
+from django.db.models import F
 
 from telegram.models import TelegramUser
 from telegram.types import Message
 
+from telegram import bot
+
 from fns.models import FnsUser
+
+
+logger = logging.getLogger(__name__)
 
 
 class SplitwiseGroup(models.Model):
@@ -44,8 +52,22 @@ class ShoppingList(models.Model):
         self.payer = user
         self.save()
 
+    def _get_item_buttons(self, user):
+        return [
+            item.get_button_row_for_user(user)
+            for item in self.item_set.all().prefetch_related('shares')
+        ]
+
     def send_list(self, user: User) -> Message:
-        return user.telegram.send_message(text=list(self.item_set.all().values_list('name')))
+        return user.telegram.send_message(
+            text='Покупка',
+            reply_markup={
+                'inline_keyboard': self._get_item_buttons(user) + [[{
+                    'text': 'Апрувнуть',
+                    'callback_data': 'approve',
+                }]]
+            }
+        )
 
     def add_user(self, user: User):
         ShoppingListUser.objects.create(
@@ -53,6 +75,19 @@ class ShoppingList(models.Model):
             shopping_list=self,
             message_id=self.send_list(user).id,
         )
+
+    def update_lists(self):
+        for list_user in ShoppingListUser.objects.filter(shopping_list=self).select_related('user'):
+            list_user.user.telegram.edit_message(
+                message_id=list_user.message_id,
+                text='Покупка',
+                reply_markup={
+                    'inline_keyboard': self._get_item_buttons(list_user.user) + [[{
+                        'text': 'Апрувнуть' if not list_user.approve else 'Дизапрувнуть',
+                        'callback_data': 'approve' if not list_user.approve else 'disapprove',
+                    }]]
+                }
+            )
 
 
 class ShoppingListUser(models.Model):
@@ -66,9 +101,31 @@ class Item(models.Model):
     shopping_list = models.ForeignKey(ShoppingList, on_delete=models.CASCADE)
     name = models.CharField(max_length=256)
     price = models.IntegerField()
-    count = models.DecimalField(max_digits=8, decimal_places=4)
+    count = models.DecimalField(max_digits=4, decimal_places=2)
     total_price = models.IntegerField()
     shares = models.ManyToManyField(User, through='ItemShare')
+
+    def get_button_row_for_user(self, user: User):
+        shares = ItemShare.objects.filter(user=user, item=self, count__gte=0)
+
+        result = [{
+            'text': f'{self.name}: {self.count} * {self.price / 100}',
+            'callback_data': f'{self.id}_1',
+        }]
+
+        if shares:
+            result.append({
+                'text': f'- ({shares[0].count})',
+                'callback_data': f'{self.id}_-1',
+            })
+
+        return result
+
+    def change_count(self, user, new_value):
+        if not ItemShare.objects.filter(user=user, item=self).exists():
+            ItemShare.objects.create(user=user, item=self, count=0)
+        ItemShare.objects.filter(user=user, item=self).update(count=F('count') + new_value)
+        self.shopping_list.update_lists()
 
 
 class ItemShare(models.Model):

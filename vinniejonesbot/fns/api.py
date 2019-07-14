@@ -134,7 +134,7 @@ class FnsApi():
         for item in receipt['items']:
             Item.objects.create(
                 shopping_list=shopping_list,
-                name=item['name'],
+                name=item['name'].strip(),
                 price=item['price'],
                 count=Decimal(item['quantity']),
                 total_price=item['sum'],

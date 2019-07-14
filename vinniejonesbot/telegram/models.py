@@ -39,6 +39,9 @@ class TelegramUser(models.Model):
     def send_message(self, **data):
         return bot.send_message(chat_id=self.user_id, **data)
 
+    def edit_message(self, **data):
+        return bot.edit_message_text(chat_id=self.user_id, **data)
+
     def change_state(self, state):
         if states.messages[state]:
             self.send_message(text=states.messages[state])
